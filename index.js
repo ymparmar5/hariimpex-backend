@@ -1,14 +1,16 @@
 const express = require("express");
-const cryptoJS = require("crypto-js");
 const axios = require("axios");
 const cors = require("cors");
 
 const app = express();
 const port = 8080;
 
+// CORS configuration
 const corsOptions = {
   origin: 'https://hariimpex.in', // Allow requests from this domain
-  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'OPTIONS'], // Allow these methods
+  allowedHeaders: ['Content-Type', 'X-VERIFY'], // Allow these headers
+  optionsSuccessStatus: 200, // For legacy browser support
 };
 
 app.use(cors(corsOptions));
@@ -28,14 +30,12 @@ app.post("/checkout", async (req, res) => {
     const payload = req.body;
     const { base64, finalChecksum } = payload;
 
-    // firebase call to add order x
-    console.log(" base64, finalChecksum :>> ", base64, finalChecksum);
+    // Firebase call to add order x
+    console.log("base64, finalChecksum :>> ", base64, finalChecksum);
 
     const response = await axios.post(
-      "https://api.phonepe.com/apis/hermes/pg/v1/pay", //env
-      {
-        request: base64,
-      },
+      "https://api.phonepe.com/apis/hermes/pg/v1/pay", // Environment URL
+      { request: base64 },
       {
         headers: {
           accept: "application/json",
