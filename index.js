@@ -1,12 +1,17 @@
 const express = require("express");
 const cryptoJS = require("crypto-js");
 const axios = require("axios");
-const cors = require("cors"); // Import the cors package
+const cors = require("cors");
 
 const app = express();
 const port = 8080;
 
-app.use(cors());
+const corsOptions = {
+  origin: 'https://hariimpex.in', // Allow requests from this domain
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Define a route handler for the root path "/"
@@ -14,6 +19,10 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+// Handle preflight OPTIONS request for /checkout
+app.options("/checkout", cors(corsOptions));
+
+// Define the /checkout POST endpoint
 app.post("/checkout", async (req, res) => {
   try {
     const payload = req.body;
@@ -36,7 +45,6 @@ app.post("/checkout", async (req, res) => {
       }
     );
     res.json(response.data);
-    return res;
   } catch (e) {
     res.status(500).send(e.message);
   }
