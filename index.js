@@ -5,7 +5,6 @@ const cors = require("cors");
 const app = express();
 const port = 8080;
 
-// CORS configuration
 const corsOptions = {
   origin: 'https://hariimpex.in', // Allow requests from this domain
   methods: ['GET', 'POST', 'OPTIONS'], // Allow these methods
