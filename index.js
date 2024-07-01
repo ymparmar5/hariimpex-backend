@@ -6,7 +6,7 @@ const app = express();
 const port = 8080;
 
 const corsOptions = {
-  origin: 'https://hariimpex.in', // Allow requests from this domain
+  origin: 'https://hariimpex-opal.vercel.app/', // Allow requests from this domain
   methods: ['GET', 'POST', 'OPTIONS'], // Allow these methods
   allowedHeaders: ['Content-Type', 'X-VERIFY'], // Allow these headers
   optionsSuccessStatus: 200, // For legacy browser support
