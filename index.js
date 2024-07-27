@@ -27,10 +27,10 @@ app.options("/checkout", cors(corsOptions));
 app.post("/checkout", async (req, res) => {
   try {
     const payload = req.body;
-    const { base64, finalChecksum } = payload;
+    const { base64, checkout } = payload;
 
     // Firebase call to add order x
-    console.log("base64, finalChecksum :>> ", base64, finalChecksum);
+    console.log("base64, finalChecksum :>> ", base64, checkout);
 
     const response = await axios.post(
       "https://api.phonepe.com/apis/hermes/pg/v1/pay", // Environment URL
@@ -39,7 +39,7 @@ app.post("/checkout", async (req, res) => {
         headers: {
           accept: "application/json",
           "Content-Type": "application/json",
-          "X-VERIFY": finalChecksum,
+          "X-VERIFY": checkout,
         },
       }
     );
