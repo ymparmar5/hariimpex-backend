@@ -5,11 +5,22 @@ const cors = require("cors");
 const app = express();
 const port = 8080;
 
+const allowedOrigins = [
+  "https://hariimpex-opal.vercel.app",
+  "http://localhost:5173",
+];
+
 const corsOptions = {
-  origin: 'https://hariimpex-opal.vercel.app/', // Allow requests from this domain
-  methods: ['GET', 'POST', 'OPTIONS'], // Allow these methods
-  allowedHeaders: ['Content-Type', 'X-VERIFY'], // Allow these headers
-  optionsSuccessStatus: 200, // For legacy browser support
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "X-VERIFY"],
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
@@ -27,10 +38,11 @@ app.options("/checkout", cors(corsOptions));
 app.post("/checkout", async (req, res) => {
   try {
     const payload = req.body;
-    const { base64, checkout } = payload;
+    const { base64, checksum } = payload;
 
     // Firebase call to add order x
-    console.log("base64, finalChecksum :>> ", base64, checkout);
+    console.log("Payload base64:", base64);
+    console.log("Checksum:", checksum);
 
     const response = await axios.post(
       "https://api.phonepe.com/apis/hermes/pg/v1/pay", // Environment URL
@@ -39,13 +51,15 @@ app.post("/checkout", async (req, res) => {
         headers: {
           accept: "application/json",
           "Content-Type": "application/json",
-          "X-VERIFY": checkout,
+          "X-VERIFY": checksum,
         },
       }
     );
+
     res.json(response.data);
-  } catch (e) {
-    res.status(500).send(e.message);
+  } catch (error) {
+    console.error("Error during payment processing:", error);
+    res.status(500).send(error.message);
   }
 });
 
