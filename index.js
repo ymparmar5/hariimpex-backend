@@ -9,6 +9,7 @@ const allowedOrigins = [
   "https://hariimpex-opal.vercel.app",
   "http://localhost:5173",
 ];
+
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.includes(origin) || !origin) {
