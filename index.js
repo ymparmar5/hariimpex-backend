@@ -8,6 +8,8 @@ const port = 8080;
 const allowedOrigins = [
   "https://hariimpex-opal.vercel.app",
   "http://localhost:5173",
+  "https://hariimpex.in",
+
 ];
 
 const corsOptions = {
