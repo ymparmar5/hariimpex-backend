@@ -3,18 +3,19 @@ const axios = require("axios");
 const cors = require("cors");
 
 const app = express();
-const port = 8080;
+const port = process.env.PORT || 8080;
 
+// Whitelisted domains
 const allowedOrigins = [
   "https://hariimpex-opal.vercel.app",
   "http://localhost:5173",
   "https://hariimpex.in",
-
 ];
 
+// CORS configuration
 const corsOptions = {
   origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -25,47 +26,50 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+// Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Define a route handler for the root path "/"
+// Routes
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello from HariImpex backend!");
 });
 
-// Handle preflight OPTIONS request for /checkout
+// Optional: handle preflight (though `app.use(cors())` usually covers this)
 app.options("/checkout", cors(corsOptions));
 
-// Define the /checkout POST endpoint
+// Payment processing endpoint
 app.post("/checkout", async (req, res) => {
   try {
-    const payload = req.body;
-    const { base64, checksum } = payload;
+    const { base64, checksum } = req.body;
 
-    // Firebase call to add order x
-    console.log("Payload base64:", base64);
-    console.log("Checksum:", checksum);
+    if (!base64 || !checksum) {
+      return res.status(400).json({ error: "Missing base64 or checksum" });
+    }
 
     const response = await axios.post(
-      "https://api.phonepe.com/apis/hermes/pg/v1/pay", // Environment URL
+      "https://api.phonepe.com/apis/hermes/pg/v1/pay",
       { request: base64 },
       {
         headers: {
-          accept: "application/json",
           "Content-Type": "application/json",
+          Accept: "application/json",
           "X-VERIFY": checksum,
         },
       }
     );
 
-    res.json(response.data);
+    res.status(200).json(response.data);
   } catch (error) {
-    console.error("Error during payment processing:", error);
-    res.status(500).send(error.message);
+    console.error("Payment processing failed:", error.response?.data || error.message);
+    res.status(500).json({
+      error: "Payment processing failed",
+      details: error.response?.data || error.message,
+    });
   }
 });
 
-// Start the server
+// Start server
 app.listen(port, () => {
-  console.log(`hariimpex listening at http://localhost:${port}`);
+  console.log(`HariImpex backend running at http://localhost:${port}`);
 });
